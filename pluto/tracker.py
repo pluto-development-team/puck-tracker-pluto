@@ -12,6 +12,7 @@ import utils
 DEBUG = False
 THREADED = True
 
+showOutputSeperate = False
 capture = None
 writeVideo = False
 writer = None
@@ -33,10 +34,12 @@ def main(args):
     print("Total time:", utils.clockStringFromSecs(totalTimePassed / 1000))
     return 0
 
-def setup(videoFile, cascadeFile, initialBoxes = None, writeToVideo = False, outputFile = "result.mp4"):
+def setup(videoFile, cascadeFile, showOutput, initialBoxes = None, writeToVideo = False, outputFile = "result.mp4"):
     """Reads in the video, requests cropping dimensions and
     runs the cascade to find the pucks"""
-    global capture, writer, writeVideo, top, bottom, right, left
+    global capture, writer, writeVideo, top, bottom, right, left, showOutputSeperate
+    
+    showOutputSeperate = showOutput
     
     #Open video file
     capture = VideoCapture(videoFile)
@@ -119,7 +122,7 @@ def setup(videoFile, cascadeFile, initialBoxes = None, writeToVideo = False, out
 def run():
     """Reads a frame from the video, tracks the pucks and
     returns the position data to the caller"""
-    global writer, totalTimePassed, firstRun
+    global writer, totalTimePassed, firstRun, showOutputSeperate
     
     if firstRun:
         firstRun = False
@@ -151,15 +154,16 @@ def run():
         cv.putText(displayFrame, etaStr, (0, 75), cv.FONT_HERSHEY_PLAIN, 2, (0, 255, 0))
     
     #Display frame and write it to the video file
-    cv.imshow("Tracker", displayFrame)
+    if showOutputSeperate:
+        cv.imshow("Tracker", displayFrame)
+        cv.waitKey(1)
     if writeVideo:
         writer.write(displayFrame)
-    cv.waitKey(1)
     
     timeElapsed = utils.millis() - startTime
     
     #Returns status, frame counter, current puck positions and the time taken for processing this frame
-    return True, capture.get(cv.CAP_PROP_POS_FRAMES), positions, timeElapsed
+    return True, capture.get(cv.CAP_PROP_POS_FRAMES), positions, timeElapsed, displayFrame
 
 def cleanupTracker():
     """Cleans up the video input and output and instructs

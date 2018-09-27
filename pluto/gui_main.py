@@ -74,7 +74,7 @@ class mainApp(tk.Tk):
     
     def autoDetect(self):
         sucess, maxframes, previewpic, numberofboxes, w, h = tracker.setup(
-            self.video_path,self.cascade_path,None,False,"result")
+            self.video_path,self.cascade_path,True,None,False,"result")
         print(sucess,maxframes)
         
         self.maxframes = maxframes
@@ -113,7 +113,7 @@ class mainApp(tk.Tk):
         if self.reference[3].winfo_children()[0].config("text")[-1] == "Pause":
             #Tracking Loop
             
-            state, self.frameCount, boxes, time = tracker.run()
+            state, self.frameCount, boxes, time, displayFrame = tracker.run()
             
             if state:
             
